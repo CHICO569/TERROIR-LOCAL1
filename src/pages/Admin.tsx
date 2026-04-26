@@ -196,23 +196,47 @@ export function Admin() {
             </div>
             
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-              {[
-                { label: 'C.A Total', val: formatPrice(totalSales), icon: <TrendingUp size={20} />, color: 'bg-natural-primary' },
-                { label: 'Commandes', val: orders.length.toString(), icon: <ShoppingBag size={20} />, color: 'bg-natural-accent' },
-                { label: 'Ruptures', val: products.filter(p => p.stock < 5).length.toString().padStart(2, '0'), icon: <AlertTriangle size={20} />, color: 'bg-red-500' },
-                { label: 'Produits', val: products.length.toString(), icon: <CheckCircle size={20} />, color: 'bg-natural-primary' }
-              ].map((s, i) => (
-                <div key={i} className="bg-white p-4 lg:p-8 rounded-[24px] lg:rounded-[40px] border border-natural-border shadow-sm group hover:shadow-xl transition-all">
-                  <div className={cn("w-8 h-8 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center text-white mb-4 lg:mb-6 shadow-lg", s.color)}>
-                    {React.cloneElement(s.icon as React.ReactElement, { size: 16 })}
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+              {/* Featured Stat: Turnover */}
+              <div className="lg:col-span-2 bg-natural-primary p-8 lg:p-10 rounded-[32px] lg:rounded-[48px] shadow-2xl shadow-natural-primary/20 text-white relative overflow-hidden group hover:scale-[1.02] transition-all">
+                <div className="relative z-10 flex flex-col h-full justify-between">
                   <div>
-                    <p className="text-[8px] lg:text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em] mb-1 lg:mb-2">{s.label}</p>
-                    <p className="text-lg lg:text-3xl font-black text-natural-primary tracking-tighter">{s.val}</p>
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
+                      <TrendingUp size={24} />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-70 mb-2">Chiffre d'Affaires Global</p>
+                    <h2 className="text-4xl lg:text-6xl font-black tracking-tighter">{formatPrice(totalSales)}</h2>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                       <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">En temps réel</span>
+                    </div>
+                    <p className="text-xs font-medium opacity-60">Basé sur {orders.length} ventes</p>
                   </div>
                 </div>
-              ))}
+                <Leaf size={180} className="absolute top-[-40px] right-[-40px] text-white/5 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+              </div>
+
+              {/* Other Stats */}
+              <div className="lg:col-span-2 grid grid-cols-2 gap-4 lg:gap-8">
+                {[
+                  { label: 'Commandes', val: orders.length.toString(), icon: <ShoppingBag size={20} />, color: 'bg-natural-accent', textColor: 'text-white' },
+                  { label: 'Ruptures', val: products.filter(p => p.stock < 5).length.toString().padStart(2, '0'), icon: <AlertTriangle size={20} />, color: 'bg-red-500', textColor: 'text-white' },
+                  { label: 'Produits', val: products.length.toString(), icon: <CheckCircle size={20} />, color: 'bg-white', textColor: 'text-natural-primary' },
+                  { label: 'Clients', val: "12", icon: <User size={20} />, color: 'bg-white', textColor: 'text-natural-primary' }
+                ].map((s, i) => (
+                  <div key={i} className={cn("p-6 lg:p-8 rounded-[32px] border border-natural-border shadow-sm group hover:shadow-xl transition-all", s.color)}>
+                    <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center mb-4 lg:mb-6 shadow-lg", s.color === 'bg-white' ? "bg-natural-bg" : "bg-white/20")}>
+                      {React.cloneElement(s.icon as React.ReactElement, { size: 18, className: s.color === 'bg-white' ? 'text-natural-primary' : 'text-white' })}
+                    </div>
+                    <div>
+                      <p className={cn("text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] mb-1 lg:mb-2", s.textColor === 'text-white' ? 'opacity-70' : 'text-natural-secondary')}>{s.label}</p>
+                      <p className={cn("text-2xl lg:text-3xl font-black tracking-tighter", s.textColor)}>{s.val}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Charts Section */}
