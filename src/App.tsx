@@ -26,15 +26,29 @@ export function Layout() {
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [tabHistory, setTabHistory] = useState<string[]>([]);
   const { items, toast, hideToast, addToast } = useCart();
   const { user, loading, signOut } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterLoading, setNewsletterLoading] = useState(false);
 
+  const changeTab = (tab: typeof activeTab) => {
+    if (tab === activeTab) return;
+    setTabHistory(prev => [...prev, activeTab]);
+    setActiveTab(tab);
+  };
+
+  const handleBack = () => {
+    if (tabHistory.length === 0) return;
+    const prevTab = tabHistory[tabHistory.length - 1];
+    setTabHistory(prev => prev.slice(0, -1));
+    setActiveTab(prevTab as any);
+  };
+
   useEffect(() => {
     if (user?.email === 'admin@terroir.sn') {
       setIsAdmin(true);
-      setActiveTab('admin');
+      setActiveTab('admin'); // Use direct call here to avoid history pollution on mount
     }
   }, [user]);
 
@@ -103,7 +117,7 @@ export function Layout() {
         <div className="p-8 border-b border-natural-bg">
           <div 
             className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => setActiveTab('home')}
+            onClick={() => changeTab('home')}
           >
             <div className="bg-natural-primary p-2.5 rounded-xl text-white group-hover:rotate-12 transition-transform shadow-lg shadow-natural-primary/20">
               <Leaf size={24} />
@@ -225,12 +239,24 @@ export function Layout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header (Desktop and Mobile view) */}
         <header className="h-24 bg-white border-b border-natural-border px-6 md:px-12 flex items-center justify-between shrink-0 sticky top-0 z-40 bg-white/95 backdrop-blur-sm">
-          <button 
-            className="lg:hidden p-3 bg-natural-bg rounded-2xl border border-natural-border"
-            onClick={() => setIsMobileMenuOpen(true)}
-          >
-            <Menu size={24} className="text-natural-primary" />
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              className="lg:hidden p-3 bg-natural-bg rounded-2xl border border-natural-border"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu size={24} className="text-natural-primary" />
+            </button>
+            
+            {tabHistory.length > 0 && activeTab !== 'home' && (
+              <button 
+                className="p-3 bg-natural-primary/10 rounded-2xl border border-natural-primary/20 text-natural-primary flex items-center gap-2 font-black text-[10px] uppercase tracking-widest"
+                onClick={() => handleBack()}
+              >
+                <ArrowRight size={18} className="rotate-180" />
+                <span className="hidden sm:inline">Retour</span>
+              </button>
+            )}
+          </div>
 
           <div className="hidden md:block relative flex-1 max-w-md mx-8">
              <input type="text" placeholder="Rechercher un produit du terroir..." className="w-full bg-natural-bg border-none rounded-2xl px-6 py-4 text-sm font-medium focus:ring-2 focus:ring-natural-primary/20 transition-all outline-none" />
@@ -238,7 +264,7 @@ export function Layout() {
 
           <div className="flex items-center gap-4">
              <button 
-               onClick={() => setActiveTab('cart')}
+               onClick={() => changeTab('cart')}
                className={cn(
                  "relative p-4 rounded-2xl transition-all group",
                  activeTab === 'cart' ? "bg-natural-primary text-white shadow-xl shadow-natural-primary/20" : "bg-natural-bg text-natural-primary hover:bg-natural-border"
@@ -253,7 +279,7 @@ export function Layout() {
              </button>
              
              <button 
-               onClick={() => setActiveTab('cart')}
+               onClick={() => changeTab('cart')}
                className="hidden sm:flex bg-natural-primary text-white px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-natural-primary/10"
              >
                 Panier ({formatPrice(items.reduce((acc, i) => acc + (i.unitPrice * i.quantity), 0))})
@@ -262,7 +288,16 @@ export function Layout() {
         </header>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto no-scrollbar bg-natural-bg p-6 md:p-12">
+        <motion.main 
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={(_e, info) => {
+            if (info.offset.x > 100) {
+              handleBack();
+            }
+          }}
+          className="flex-1 overflow-y-auto no-scrollbar bg-natural-bg p-6 md:p-12"
+        >
           <div className="max-w-7xl mx-auto min-h-full">
             <AnimatePresence mode="wait">
               {activeTab === 'home' && (
@@ -288,7 +323,7 @@ export function Layout() {
                        </p>
                        <div className="flex flex-wrap gap-5">
                           <button 
-                            onClick={() => setActiveTab('shop')}
+                            onClick={() => changeTab('shop')}
                             className="bg-natural-primary text-white px-10 py-6 rounded-2xl font-black text-lg hover:bg-natural-primary/90 transition-all flex items-center gap-4 shadow-2xl shadow-natural-primary/20 active:scale-95 ring-4 ring-natural-primary/5"
                           >
                             Explorez le catalogue
@@ -347,8 +382,8 @@ export function Layout() {
               )}
 
               {activeTab === 'shop' && <Shop />}
-              {activeTab === 'cart' && <Cart onCheckout={() => setActiveTab('checkout')} onGoBack={() => setActiveTab('shop')} />}
-              {activeTab === 'checkout' && <Check onSuccess={() => {}} onTrackOrder={() => setActiveTab('tracking')} />}
+              {activeTab === 'cart' && <Cart onCheckout={() => changeTab('checkout')} onGoBack={() => changeTab('shop')} />}
+              {activeTab === 'checkout' && <Check onSuccess={() => {}} onTrackOrder={() => changeTab('tracking')} />}
               {activeTab === 'admin' && isAdmin && <Admin />}
               {activeTab === 'tracking' && <Tracking />}
               {activeTab === 'profile' && <Profile />}
@@ -455,7 +490,7 @@ export function Layout() {
                   ].map((item) => (
                     <button 
                       key={item.id}
-                      onClick={() => { setActiveTab(item.id as any); setIsMobileMenuOpen(false); }}
+                      onClick={() => { changeTab(item.id as any); setIsMobileMenuOpen(false); }}
                       className={cn(
                         "text-4xl font-black text-left transition-all",
                         activeTab === item.id ? "text-natural-primary translate-x-4" : "text-natural-secondary"
@@ -473,7 +508,7 @@ export function Layout() {
                   ].map((item) => (
                     <button 
                       key={item.id}
-                      onClick={() => { setActiveTab(item.id as any); setIsMobileMenuOpen(false); }}
+                      onClick={() => { changeTab(item.id as any); setIsMobileMenuOpen(false); }}
                       className={cn(
                         "text-4xl font-black text-left transition-all text-natural-accent",
                         activeTab === item.id ? "translate-x-4" : ""
