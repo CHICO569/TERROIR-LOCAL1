@@ -458,6 +458,18 @@ export function Layout() {
                   {item.label}
                 </button>
               ))}
+              
+              {isAdmin && (
+                <button 
+                  onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); }}
+                  className={cn(
+                    "text-4xl font-black text-left transition-all text-natural-accent border-l-8 border-natural-accent pl-4",
+                    activeTab === 'admin' ? "translate-x-4" : ""
+                  )}
+                >
+                  Admin
+                </button>
+              )}
             </div>
 
             <div className="space-y-4">

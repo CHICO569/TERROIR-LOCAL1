@@ -31,7 +31,7 @@ export function Check({ onSuccess, onTrackOrder }: CheckoutProps) {
   const [formData, setFormData] = useState<DeliveryInfo>(() => {
     const saved = localStorage.getItem('terroir-checkout-form');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch (e) { }
     }
     return {
       fullName: '',

@@ -128,34 +128,36 @@ export function Admin() {
   return (
     <div className="flex flex-col lg:flex-row gap-12">
       {/* Sidebar Admin */}
-      <aside className="w-full lg:w-72 space-y-3">
-        <div className="bg-white border border-natural-border p-6 rounded-[32px] shadow-sm mb-6">
-           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-natural-secondary mb-4 px-3">Espace Gestion</p>
-           {[
-             { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-             { id: 'products', label: 'Catalogue', icon: <Package size={20} /> },
-             { id: 'orders', label: 'Commandes', icon: <ShoppingBag size={20} /> },
-             { id: 'stats', label: 'Statistiques', icon: <TrendingUp size={20} /> },
-           ].map((view) => (
-             <button 
-               key={view.id}
-               onClick={() => setActiveView(view.id as any)}
-               className={cn(
-                 "w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all text-sm mb-2 group", 
-                 activeView === view.id 
-                   ? "bg-natural-primary text-white shadow-xl shadow-natural-primary/20" 
-                   : "bg-transparent text-natural-secondary hover:bg-natural-bg hover:text-natural-primary"
-               )}
-             >
-               <div className={cn("transition-transform group-hover:scale-110", activeView === view.id ? "text-white" : "text-natural-primary")}>
-                 {view.icon}
-               </div>
-               {view.label}
-             </button>
-           ))}
+      <aside className="w-full lg:w-72 space-y-3 lg:sticky lg:top-8 self-start">
+        <div className="bg-white border border-natural-border p-4 lg:p-6 rounded-[24px] lg:rounded-[32px] shadow-sm mb-6 overflow-x-auto no-scrollbar lg:overflow-visible">
+           <p className="hidden lg:block text-[10px] font-black uppercase tracking-[0.2em] text-natural-secondary mb-4 px-3">Espace Gestion</p>
+           <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0">
+             {[
+               { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+               { id: 'products', label: 'Catalogue', icon: <Package size={20} /> },
+               { id: 'orders', label: 'Commandes', icon: <ShoppingBag size={20} /> },
+               { id: 'stats', label: 'Statistiques', icon: <TrendingUp size={20} /> },
+             ].map((view) => (
+               <button 
+                 key={view.id}
+                 onClick={() => setActiveView(view.id as any)}
+                 className={cn(
+                   "flex items-center gap-2 lg:gap-3 px-4 lg:px-6 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-bold transition-all text-xs lg:text-sm group whitespace-nowrap", 
+                   activeView === view.id 
+                     ? "bg-natural-primary text-white shadow-lg lg:shadow-xl lg:shadow-natural-primary/20" 
+                     : "bg-natural-bg/50 lg:bg-transparent text-natural-secondary hover:bg-natural-bg hover:text-natural-primary"
+                 )}
+               >
+                 <div className={cn("transition-transform group-hover:scale-110", activeView === view.id ? "text-white" : "text-natural-primary")}>
+                   {view.icon}
+                 </div>
+                 {view.label}
+               </button>
+             ))}
+           </div>
         </div>
 
-        <div className="bg-natural-accent text-white p-6 rounded-[32px] shadow-xl shadow-natural-accent/10 relative overflow-hidden">
+        <div className="hidden lg:block bg-natural-accent text-white p-6 rounded-[32px] shadow-xl shadow-natural-accent/10 relative overflow-hidden">
            <div className="relative z-10">
              <h4 className="text-lg font-bold font-serif mb-2 leading-none">Aide Admin</h4>
              <p className="text-[10px] opacity-80 mb-6 font-medium">Contacter le support coopérative</p>
@@ -171,41 +173,43 @@ export function Admin() {
       <div className="flex-1 space-y-12">
         {activeView === 'dashboard' && (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-end justify-between border-b border-natural-border pb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between border-b border-natural-border pb-8 gap-4">
               <div>
-                <div className="flex items-center gap-4">
-                  <h1 className="text-4xl font-black font-serif text-natural-primary">Tableau de Bord</h1>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-3xl lg:text-4xl font-black font-serif text-natural-primary">Tableau de Bord</h1>
                   {products.length > 0 && products[0].id.length < 5 && (
-                    <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200">
-                      Données de Simulation
+                    <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest rounded-full border border-amber-200">
+                      Simulation
                     </span>
                   )}
                 </div>
-                <p className="text-natural-secondary font-medium mt-1">Surveillez la croissance du terroir</p>
+                <p className="text-sm text-natural-secondary font-medium mt-1">Surveillez la croissance du terroir</p>
               </div>
-              <div className="flex gap-4">
-                 <button className="p-4 bg-white border border-natural-border rounded-2xl text-natural-primary hover:bg-natural-bg transition-all">
-                    <Clock size={20} />
+              <div className="flex gap-3">
+                 <button className="p-3 lg:p-4 bg-white border border-natural-border rounded-xl lg:rounded-2xl text-natural-primary hover:bg-natural-bg transition-all">
+                    <Clock size={18} />
                  </button>
-                 <button className="p-4 bg-white border border-natural-border rounded-2xl text-natural-primary hover:bg-natural-bg transition-all">
-                    <Plus size={20} />
+                 <button className="p-3 lg:p-4 bg-white border border-natural-border rounded-xl lg:rounded-2xl text-natural-primary hover:bg-natural-bg transition-all">
+                    <Plus size={18} />
                  </button>
               </div>
             </div>
             
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
               {[
                 { label: 'C.A Total', val: formatPrice(totalSales), icon: <TrendingUp size={20} />, color: 'bg-natural-primary' },
                 { label: 'Commandes', val: orders.length.toString(), icon: <ShoppingBag size={20} />, color: 'bg-natural-accent' },
                 { label: 'Ruptures', val: products.filter(p => p.stock < 5).length.toString().padStart(2, '0'), icon: <AlertTriangle size={20} />, color: 'bg-red-500' },
                 { label: 'Produits', val: products.length.toString(), icon: <CheckCircle size={20} />, color: 'bg-natural-primary' }
               ].map((s, i) => (
-                <div key={i} className="bg-white p-8 rounded-[40px] border border-natural-border shadow-sm group hover:shadow-xl transition-all">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg", s.color)}>{s.icon}</div>
+                <div key={i} className="bg-white p-4 lg:p-8 rounded-[24px] lg:rounded-[40px] border border-natural-border shadow-sm group hover:shadow-xl transition-all">
+                  <div className={cn("w-8 h-8 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center text-white mb-4 lg:mb-6 shadow-lg", s.color)}>
+                    {React.cloneElement(s.icon as React.ReactElement, { size: 16 })}
+                  </div>
                   <div>
-                    <p className="text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em] mb-2">{s.label}</p>
-                    <p className="text-3xl font-black text-natural-primary tracking-tighter">{s.val}</p>
+                    <p className="text-[8px] lg:text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em] mb-1 lg:mb-2">{s.label}</p>
+                    <p className="text-lg lg:text-3xl font-black text-natural-primary tracking-tighter">{s.val}</p>
                   </div>
                 </div>
               ))}
@@ -272,13 +276,13 @@ export function Admin() {
             </div>
             
             {/* Recent Orders Table */}
-            <div className="bg-white p-10 rounded-[48px] border border-natural-border shadow-sm">
-              <div className="flex items-center justify-between mb-10">
+            <div className="bg-white p-4 lg:p-10 rounded-[24px] lg:rounded-[48px] border border-natural-border shadow-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 lg:mb-10 gap-4">
                 <h3 className="text-xl font-bold font-serif text-natural-primary">Commandes Récentes</h3>
                 <button className="text-[10px] font-black uppercase tracking-[0.2em] text-natural-primary border-b-2 border-natural-primary/20 hover:border-natural-primary pb-1 font-sans transition-all">Rapport Mensuel</button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full text-left min-w-[600px]">
                   <thead>
                     <tr className="text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em] border-b border-natural-bg">
                       <th className="pb-6">ID Commande</th>
@@ -339,19 +343,19 @@ export function Admin() {
 
         {activeView === 'products' && (
            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-end justify-between border-b border-natural-border pb-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between border-b border-natural-border pb-8 gap-4">
                  <div>
-                    <h1 className="text-4xl font-black font-serif text-natural-primary">Catalogue Stock</h1>
-                    <p className="text-natural-secondary font-medium mt-1">Mise à jour des récoltes</p>
+                    <h1 className="text-3xl lg:text-4xl font-black font-serif text-natural-primary">Catalogue Stock</h1>
+                    <p className="text-sm text-natural-secondary font-medium mt-1">Mise à jour des récoltes</p>
                  </div>
-                 <button onClick={() => setShowAddProduct(true)} className="bg-natural-accent text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 hover:opacity-90 transition-all shadow-xl shadow-natural-accent/20">
-                    <Plus size={20} />
+                 <button onClick={() => setShowAddProduct(true)} className="w-full sm:w-auto bg-natural-accent text-white px-6 lg:px-8 py-4 lg:py-5 rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl shadow-natural-accent/20">
+                    <Plus size={18} />
                     Ajouter un produit
                  </button>
               </div>
 
-              <div className="bg-white rounded-[48px] border border-natural-border overflow-hidden shadow-2xl shadow-natural-primary/5">
-                 <table className="w-full text-left">
+              <div className="bg-white rounded-[48px] border border-natural-border overflow-x-auto shadow-2xl shadow-natural-primary/5">
+                 <table className="w-full text-left min-w-[800px]">
                     <thead className="bg-natural-bg/30">
                        <tr className="text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em]">
                           <th className="p-8">Produit Terroir</th>
@@ -397,15 +401,15 @@ export function Admin() {
 
         {activeView === 'orders' && (
            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-end justify-between border-b border-natural-border pb-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between border-b border-natural-border pb-8 gap-4">
                  <div>
-                    <h1 className="text-4xl font-black font-serif text-natural-primary">Toutes les Commandes</h1>
-                    <p className="text-natural-secondary font-medium mt-1">Gérez les livraisons en cours</p>
+                    <h1 className="text-3xl lg:text-4xl font-black font-serif text-natural-primary">Toutes les Commandes</h1>
+                    <p className="text-sm text-natural-secondary font-medium mt-1">Gérez les livraisons en cours</p>
                  </div>
               </div>
 
-              <div className="bg-white rounded-[48px] border border-natural-border overflow-hidden shadow-2xl shadow-natural-primary/5">
-                 <table className="w-full text-left">
+              <div className="bg-white rounded-[24px] lg:rounded-[48px] border border-natural-border overflow-x-auto no-scrollbar shadow-2xl shadow-natural-primary/5">
+                 <table className="w-full text-left min-w-[900px]">
                     <thead className="bg-natural-bg/30">
                        <tr className="text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em]">
                           <th className="p-8">ID</th>
