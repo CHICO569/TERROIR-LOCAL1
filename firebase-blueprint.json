@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Produit",
+      "description": "Un produit agricole vendu dans la boutique",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nom du produit" },
+        "category": { "type": "string", "description": "Catégorie (Fruits, Légumes, etc.)" },
+        "price": { "type": "number", "description": "Prix en FCFA" },
+        "stock": { "type": "number", "description": "Quantité disponible" },
+        "producer": { "type": "string", "description": "Nom du producteur" },
+        "attributes": { "type": "object", "description": "Attributs variables" },
+        "imageUrl": { "type": "string", "description": "URL de l'image" },
+        "description": { "type": "string", "description": "Description détaillée" }
+      },
+      "required": ["name", "category", "price", "stock", "producer"]
+    },
+    "Order": {
+      "title": "Commande",
+      "description": "Une commande client",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string", "description": "ID de l'utilisateur" },
+        "date": { "type": "string", "format": "date-time" },
+        "items": { "type": "array", "description": "Liste des articles commandés" },
+        "status": { "type": "string", "enum": ["en attente", "expédié", "livré", "payé"] },
+        "total": { "type": "number", "description": "Montant total de la commande" },
+        "deliveryInfo": { "type": "object", "description": "Informations de livraison" },
+        "paymentMethod": { "type": "string", "description": "Méthode de paiement (Wave, etc.)" }
+      },
+      "required": ["clientId", "date", "items", "status", "total", "deliveryInfo"]
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "Catalogue des produits"
+    },
+    "orders": {
+      "schema": "Order",
+      "description": "Historique des commandes"
+    }
+  }
+}
