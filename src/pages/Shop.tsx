@@ -164,7 +164,7 @@ export function Shop() {
         ) : filteredProducts.length > 0 ? (
           <motion.div 
             layout
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6"
+            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8"
           >
             {filteredProducts.map((p) => (
               <div key={p.id}>

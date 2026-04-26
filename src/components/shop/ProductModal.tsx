@@ -85,21 +85,29 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
                ))}
             </div>
 
-            <div className="pt-8 mt-auto border-t border-natural-border flex items-center justify-between gap-8">
-              <div>
+            <div className="pt-8 mt-auto border-t border-natural-border flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-8">
+              <div className="w-full sm:w-auto flex justify-between sm:block">
                 <p className="text-[10px] font-black uppercase tracking-widest text-natural-secondary mb-1">Prix Unitaire</p>
-                <p className="text-3xl font-black text-natural-primary">{formatPrice(product.price)}</p>
+                <p className="text-2xl md:text-3xl font-black text-natural-primary">{formatPrice(product.price)}</p>
               </div>
-              <button 
-                onClick={() => {
-                  addItem(product);
-                  onClose();
-                }}
-                className="flex-1 bg-natural-primary text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-natural-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
-              >
-                Ajouter au Panier
-                <ShoppingBag size={18} />
-              </button>
+              <div className="flex w-full gap-3">
+                <button 
+                  onClick={onClose}
+                  className="sm:hidden flex-1 bg-natural-bg text-natural-secondary py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-natural-border"
+                >
+                  Fermer
+                </button>
+                <button 
+                  onClick={() => {
+                    addItem(product);
+                    onClose();
+                  }}
+                  className="flex-[2] bg-natural-primary text-white py-5 md:py-6 rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-xl shadow-natural-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                >
+                  Ajouter au Panier
+                  <ShoppingBag size={18} />
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>

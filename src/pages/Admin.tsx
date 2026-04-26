@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { LayoutDashboard, Package, ShoppingBag, TrendingUp, AlertTriangle, CheckCircle, Clock, Truck, Plus, MoreVertical, Edit3, Trash2, Leaf, Loader2, X } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, TrendingUp, AlertTriangle, CheckCircle, Clock, Truck, Plus, MoreVertical, Edit3, Trash2, Leaf, Loader2, X, User } from 'lucide-react';
 import { formatPrice, cn } from '../lib/utils';
 import { Order, Product } from '../types';
 import { orderService } from '../services/orderService';

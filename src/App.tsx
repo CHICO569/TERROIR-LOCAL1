@@ -141,7 +141,7 @@ export function Layout() {
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id as any)}
+                  onClick={() => changeTab(item.id as any)}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all group",
                     activeTab === item.id 
@@ -173,7 +173,7 @@ export function Layout() {
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id as any)}
+                  onClick={() => changeTab(item.id as any)}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all group",
                     activeTab === item.id 
