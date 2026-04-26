@@ -34,6 +34,7 @@ export function Layout() {
   useEffect(() => {
     if (user?.email === 'admin@terroir.sn') {
       setIsAdmin(true);
+      setActiveTab('admin');
     }
   }, [user]);
 
@@ -115,79 +116,81 @@ export function Layout() {
         </div>
 
         <nav className="flex-1 p-6 space-y-2 overflow-y-auto no-scrollbar">
-          <div className="text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em] mb-4 px-3">Catalogue</div>
-          {[
-            { id: 'home', label: 'Accueil', icon: <ChevronRight size={14} /> },
-            { id: 'shop', label: 'Tous les produits', icon: <ChevronRight size={14} /> },
-            { id: 'tracking', label: 'Suivi de livraison', icon: <Truck size={14} /> },
-            { id: 'profile', label: 'Mon Compte', icon: <User size={14} /> },
-            { id: 'logout', label: 'Se déconnecter', icon: <LogOut size={14} />, className: "text-red-500 hover:bg-red-50 hover:text-red-600 border border-transparent hover:border-red-100 mt-4" }
-          ].map((item) => (
+          {!isAdmin && (
+            <>
+              <div className="text-[10px] font-black text-natural-secondary uppercase tracking-[0.2em] mb-4 px-3">Catalogue</div>
+              {[
+                { id: 'home', label: 'Accueil', icon: <ChevronRight size={14} /> },
+                { id: 'shop', label: 'Tous les produits', icon: <ChevronRight size={14} /> },
+                { id: 'tracking', label: 'Suivi de livraison', icon: <Truck size={14} /> },
+                { id: 'profile', label: 'Mon Compte', icon: <User size={14} /> },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id as any)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all group",
+                    activeTab === item.id 
+                      ? "bg-natural-primary text-white shadow-lg shadow-natural-primary/10" 
+                      : "text-natural-secondary hover:bg-natural-bg hover:text-natural-primary"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={cn("w-1.5 h-1.5 rounded-full", 
+                      activeTab === item.id ? "bg-white" : "bg-natural-secondary/30"
+                    )} />
+                    {item.label}
+                  </div>
+                  {item.icon}
+                </button>
+              ))}
+            </>
+          )}
+
+          {isAdmin && (
+            <>
+              <div className="text-[10px] font-black text-natural-accent uppercase tracking-[0.2em] mb-4 px-3 flex items-center gap-2">
+                <ShieldCheck size={12} />
+                Administration
+              </div>
+              {[
+                { id: 'admin', label: 'Tableau de Bord', icon: <LayoutDashboard size={14} /> },
+                { id: 'profile', label: 'Mon Profil', icon: <User size={14} /> },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id as any)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all group",
+                    activeTab === item.id 
+                      ? "bg-natural-accent text-white shadow-lg shadow-natural-accent/20" 
+                      : "text-natural-secondary hover:bg-natural-bg hover:text-natural-accent"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={cn("w-1.5 h-1.5 rounded-full", 
+                      activeTab === item.id ? "bg-white" : "bg-natural-accent/30"
+                    )} />
+                    {item.label}
+                  </div>
+                  {item.icon}
+                </button>
+              ))}
+            </>
+          )}
+
+          <div className="pt-4 border-t border-natural-bg mt-4">
             <button
-              key={item.id}
-              onClick={() => {
-                if (item.id === 'logout') {
-                  signOut();
-                } else {
-                  setActiveTab(item.id as any);
-                }
-              }}
-              className={cn(
-                "w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all group",
-                activeTab === item.id 
-                  ? "bg-natural-primary text-white shadow-lg shadow-natural-primary/10" 
-                  : (item.className || "text-natural-secondary hover:bg-natural-bg hover:text-natural-primary")
-              )}
+              onClick={() => signOut()}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all group text-red-500 hover:bg-red-50 hover:text-red-600 border border-transparent hover:border-red-100"
             >
               <div className="flex items-center gap-3">
-                <span className={cn("w-1.5 h-1.5 rounded-full", 
-                  activeTab === item.id ? "bg-white" : 
-                  (item.id === 'logout' ? "bg-red-300" : "bg-natural-secondary/30")
-                )} />
-                {item.label}
+                <span className="w-1.5 h-1.5 rounded-full bg-red-300" />
+                Se déconnecter
               </div>
-              {item.icon}
+              <LogOut size={14} />
             </button>
-          ))}
-
-          <div className="pt-8">
-            <div className="text-[10px] font-black text-natural-accent uppercase tracking-[0.2em] mb-4 px-3 flex items-center gap-2">
-              <ShieldCheck size={12} />
-              Accès Staff
-            </div>
-            <button 
-              onClick={() => {
-                if (isAdmin) {
-                  setIsAdmin(false);
-                  setActiveTab('home');
-                } else {
-                  setShowAdminLogin(true);
-                }
-              }}
-              className={cn(
-                "w-full flex items-center gap-3 px-4 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all border-2",
-                isAdmin 
-                  ? "bg-natural-accent text-white border-natural-accent shadow-lg shadow-natural-accent/20" 
-                  : "bg-white border-natural-border text-natural-secondary hover:border-natural-accent hover:text-natural-accent"
-              )}
-            >
-              <LayoutDashboard size={16} />
-              {isAdmin ? 'Quitter Admin' : 'Connexion Admin'}
-            </button>
-
-            {isAdmin && (
-              <button 
-                onClick={() => setActiveTab('admin')}
-                className={cn(
-                   "w-full mt-2 flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-sm",
-                   activeTab === 'admin' ? "bg-natural-primary text-white" : "bg-white text-natural-secondary border border-natural-border hover:bg-natural-bg"
-                )}
-              >
-                <LayoutDashboard size={18} />
-                Tableau de Bord
-              </button>
-            )}
-          </div>
+             </div>
         </nav>
 
         <div className="p-6 border-t border-natural-bg">
@@ -440,35 +443,45 @@ export function Layout() {
             </div>
             
             <div className="flex flex-col gap-6 mb-12">
-              {[
-                { id: 'home', label: 'Accueil' },
-                { id: 'shop', label: 'Boutique' },
-                { id: 'profile', label: 'Mon Compte' },
-                { id: 'tracking', label: 'Suivi Livraison' },
-                { id: 'cart', label: 'Panier' },
-              ].map((item) => (
-                <button 
-                  key={item.id}
-                  onClick={() => { setActiveTab(item.id as any); setIsMobileMenuOpen(false); }}
-                  className={cn(
-                    "text-4xl font-black text-left transition-all",
-                    activeTab === item.id ? "text-natural-primary translate-x-4" : "text-natural-secondary"
-                  )}
-                >
-                  {item.label}
-                </button>
-              ))}
-              
-              {isAdmin && (
-                <button 
-                  onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); }}
-                  className={cn(
-                    "text-4xl font-black text-left transition-all text-natural-accent border-l-8 border-natural-accent pl-4",
-                    activeTab === 'admin' ? "translate-x-4" : ""
-                  )}
-                >
-                  Admin
-                </button>
+              {!isAdmin ? (
+                <>
+                  {[
+                    { id: 'home', label: 'Accueil' },
+                    { id: 'shop', label: 'Boutique' },
+                    { id: 'profile', label: 'Mon Compte' },
+                    { id: 'tracking', label: 'Suivi Livraison' },
+                    { id: 'cart', label: 'Panier' },
+                  ].map((item) => (
+                    <button 
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id as any); setIsMobileMenuOpen(false); }}
+                      className={cn(
+                        "text-4xl font-black text-left transition-all",
+                        activeTab === item.id ? "text-natural-primary translate-x-4" : "text-natural-secondary"
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {[
+                    { id: 'admin', label: 'Dashboard' },
+                    { id: 'profile', label: 'Mon Profil' },
+                  ].map((item) => (
+                    <button 
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id as any); setIsMobileMenuOpen(false); }}
+                      className={cn(
+                        "text-4xl font-black text-left transition-all text-natural-accent",
+                        activeTab === item.id ? "translate-x-4" : ""
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </>
               )}
             </div>
 
