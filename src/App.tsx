@@ -427,7 +427,8 @@ export function Layout() {
             initial={{ opacity: 0, x: '-100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '-100%' }}
-            className="fixed inset-0 z-[100] bg-white p-8 flex flex-col md:hidden"
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[100] bg-white p-8 flex flex-col md:hidden overflow-y-auto no-scrollbar"
           >
             <div className="flex justify-between items-center mb-16">
               <div className="flex items-center gap-3">
