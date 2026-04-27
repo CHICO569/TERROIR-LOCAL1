@@ -192,7 +192,7 @@ export function Admin() {
             </div>
             
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
               {/* Featured Stat: Turnover */}
               <div className="lg:col-span-2 bg-natural-primary p-8 lg:p-10 rounded-[32px] lg:rounded-[48px] shadow-2xl shadow-natural-primary/20 text-white relative overflow-hidden group hover:scale-[1.02] transition-all">
                 <div className="relative z-10 flex flex-col h-full justify-between">
@@ -236,8 +236,8 @@ export function Admin() {
             </div>
 
             {/* Charts Section */}
-            <div className="grid lg:grid-cols-3 gap-8">
-               <div className="lg:col-span-2 bg-white p-10 rounded-[48px] border border-natural-border shadow-sm">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
+               <div className="xl:col-span-2 bg-white p-6 md:p-10 rounded-[32px] md:rounded-[48px] border border-natural-border shadow-sm">
                   <div className="flex items-center justify-between mb-10">
                     <h3 className="text-xl font-bold font-serif text-natural-primary">Évolution des Ventes</h3>
                     <div className="flex gap-2">
