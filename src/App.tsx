@@ -389,7 +389,7 @@ export function Layout() {
               {activeTab === 'profile' && <Profile />}
             </AnimatePresence>
           </div>
-        </main>
+        </motion.main>
 
         <Toast 
           message={toast.message} 
