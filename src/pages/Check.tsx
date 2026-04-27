@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { CITIES_SENEGAL } from '../constants';
@@ -12,9 +12,15 @@ import { formatPrice, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, MapPin, Building, Mail, User, CheckCircle2, Loader2, Download, ArrowRight, CreditCard, Truck, ShoppingBag, Store, Clock } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import emailjs from '@emailjs/browser';
 
 import { orderService } from '../services/orderService';
+import emailjs from '@emailjs/browser';
+
+const EMAILJS_CONFIG = {
+  serviceId: 'service_z8okin2',
+  templateId: 'template_8xpkxwo',
+  publicKey: 'mNqgrWOCI2ShdsB7e',
+};
 
 interface CheckoutProps {
   onSuccess: (orderId: string) => void;
@@ -28,21 +34,15 @@ export function Check({ onSuccess, onTrackOrder }: CheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<DeliveryInfo>(() => {
-    const saved = localStorage.getItem('terroir-checkout-form');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { }
-    }
-    return {
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: 'Dakar',
-      neighborhood: '',
-      shippingMethod: 'standard',
-      instructions: ''
-    };
+  const [formData, setFormData] = useState<DeliveryInfo>({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: 'Dakar',
+    neighborhood: '',
+    shippingMethod: 'standard',
+    instructions: ''
   });
 
   const SHIPPING_COSTS: Record<ShippingMethod, number> = {
@@ -64,32 +64,20 @@ export function Check({ onSuccess, onTrackOrder }: CheckoutProps) {
     finalTotal: number;
   } | null>(null);
 
-  useEffect(() => {
-    localStorage.setItem('terroir-checkout-form', JSON.stringify(formData));
-  }, [formData]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('paydunya') === 'success') {
-      setStep('payment');
-      finalizeOrderAfterPayment();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (params.get('paydunya') === 'cancel') {
-      setError("Le paiement a été annulé.");
-      setStep('payment');
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
-
   const handleSubmitDetails = (e: React.FormEvent) => {
     e.preventDefault();
     setStep('payment');
   };
 
-  const finalizeOrderAfterPayment = async () => {
+  const handleSimulatePayment = async () => {
     setLoading(true);
+    setError(null);
     let currentId = orderId;
     try {
+      // Simulation d'une attente réseau
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Tentative de création en base (Supabase)
       try {
         const order = await orderService.createOrder(items, finalTotal, formData, selectedMethod, user?.id);
         if (order?.id) {
@@ -100,63 +88,57 @@ export function Check({ onSuccess, onTrackOrder }: CheckoutProps) {
         console.warn('Supabase not fully configured, continuing in simulation mode.', dbError);
       }
 
+      // Envoi de l'e-mail de confirmation réel
       setEmailSending(true);
-      const recipientEmail = formData.email?.trim() || "";
-      if (recipientEmail) {
-        const finalItems = [...items];
-        setCompletedOrder({
-          items: finalItems,
-          total: total,
-          shipping: shippingCost,
-          finalTotal: finalTotal
-        });
-
-        try {
-          await emailjs.send(
-            'service_z8okin2',
-            'template_l9qt6um',
-            {
-              to_email: recipientEmail,
-              email: recipientEmail,
-              order_id: currentId,
-              orders: finalItems.map(item => ({
-                name: item.name,
-                units: item.quantity,
-                price: (item.unitPrice || 0) * (item.quantity || 1)
-              })),
-              cost: { shipping: shippingCost, tax: 0, total: finalTotal }
-            },
-            'mNqgrWOCI2ShdsB7e'
-          );
-          addToast("Commande confirmée et e-mail envoyé !");
-        } catch (mailError) {
-          console.error("Email error:", mailError);
-        } finally {
-          setEmailSending(false);
-        }
+      try {
+        await emailjs.send(
+          EMAILJS_CONFIG.serviceId,
+          EMAILJS_CONFIG.templateId,
+          {
+            subject: `Confirmation de commande #${currentId} - Terroir Local`,
+            to_email: formData.email,
+            to_name: formData.fullName,
+            order_id: currentId,
+            total_amount: formatPrice(finalTotal),
+            app_name: 'Terroir Local Sénégal',
+            is_order: true,
+            is_otp: false
+          },
+          EMAILJS_CONFIG.publicKey
+        );
+      } catch (emailErr) {
+        console.error("Erreur envoi email confirmation:", emailErr);
       }
+      setEmailSending(false);
+
+      // Sauvegarder les données AVANT de vider le panier
+      const finalItems = [...items];
+      const finalTotalVal = finalTotal;
+      const finalShippingVal = shippingCost;
+
+      setCompletedOrder({
+        items: finalItems,
+        total: total,
+        shipping: finalShippingVal,
+        finalTotal: finalTotalVal
+      });
+
+      addToast("Commande confirmée !");
 
       setLoading(false);
       setStep('success');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       clearCart();
-      if (onSuccess) onSuccess(currentId);
+      if (onSuccess) {
+        try {
+          onSuccess(currentId);
+        } catch (e) {
+          console.error("onSuccess callback error:", e);
+        }
+      }
     } catch (err: any) {
+      console.error("Critical Payment Error:", err);
       setLoading(false);
-      setError("Erreur finale: " + (err.message || "Inconnue"));
-    }
-  };
-
-  const handleSimulatePayment = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      await finalizeOrderAfterPayment();
-    } catch (err: any) {
-      console.error("Simulation Error:", err);
-      setError("Le paiement a échoué. Veuillez réessayer.");
-      setLoading(false);
+      setError("Le paiement a échoué. Veuillez réessayer. Erreur : " + (err.message || "Inconnue"));
     }
   };
 
@@ -515,56 +497,70 @@ export function Check({ onSuccess, onTrackOrder }: CheckoutProps) {
                   <h2 className="text-5xl font-black text-natural-primary font-serif mb-4 leading-tight">Merci, {displayFirstName} !</h2>
                   <p className="text-xl text-natural-secondary mb-2 font-medium">Votre commande <span className="font-black text-natural-accent">#{displayOrderId}</span> est validée.</p>
                   <p className="text-xs text-natural-secondary mb-12 font-bold bg-natural-primary/5 inline-block px-4 py-2 rounded-full border border-natural-primary/10">
-                    📧 Un e-mail de confirmation a été envoyé automatiquement à <span className="text-natural-primary underline">{displayEmail}</span>
+                    📦 Votre commande est enregistrée pour <span className="text-natural-primary underline">{displayEmail}</span>
                   </p>
 
-                  <div className="bg-natural-bg p-10 rounded-[40px] mb-12 border border-natural-border flex flex-col md:flex-row items-center justify-between gap-10">
-                    <div className="text-left space-y-1">
+                  <div className="bg-natural-bg p-8 md:p-12 rounded-[40px] mb-12 border border-natural-border flex flex-col items-center justify-center gap-8">
+                    <div className="text-center space-y-2">
                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-natural-secondary">Total versé au terroir</p>
-                      <p className="text-4xl font-black text-natural-primary tracking-tighter">
+                      <p className="text-5xl font-black text-natural-primary tracking-tighter">
                         {formatPrice(displayFinalTotal)}
                       </p>
-                      <p className="text-[9px] font-bold text-natural-secondary">
+                      <p className="text-[11px] font-bold text-natural-secondary">
                         Dont {formatPrice(displayShipping)} de livraison
                       </p>
                     </div>
-                    <div className="flex flex-col gap-4 w-full md:w-auto">
-                      <p className="text-center md:text-left text-[9px] font-black uppercase tracking-widest text-natural-accent">Votre document est prêt :</p>
-                      <div className="flex flex-col sm:flex-row items-center justify-center md:justify-end gap-4 w-full">
-                        <button
-                          onClick={generatePDF}
-                          className="w-full sm:w-auto bg-natural-primary text-white border-2 border-natural-primary px-8 py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-natural-primary/90 transition-all shadow-2xl shadow-natural-primary/30 transform hover:scale-105"
-                        >
-                          <Download size={24} />
-                          TÉLÉCHARGER LE REÇU (PDF)
-                        </button>
-                        <button
-                          onClick={() => window.print()}
-                          className="w-full sm:w-auto bg-white border-2 border-natural-border text-natural-primary px-8 py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-natural-bg transition-all shadow-md transform hover:scale-105"
-                        >
-                          <ShoppingBag size={24} />
-                          IMPRIMER
-                        </button>
-                        <button
-                          onClick={onTrackOrder}
-                          className="w-full sm:w-auto bg-natural-accent text-white px-8 py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:opacity-95 transition-all shadow-2xl shadow-natural-accent/30 transform hover:scale-105"
-                        >
-                          <Truck size={24} />
-                          SUIVRE MON COLIS
-                        </button>
+
+                    <div className="w-full space-y-6">
+                      <div className="flex flex-col gap-4">
+                        <p className="text-center text-[11px] font-black uppercase tracking-widest text-natural-accent">Options de reçu et suivi :</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                          <button
+                            onClick={generatePDF}
+                            className="bg-natural-primary text-white border-2 border-natural-primary px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-natural-primary/90 transition-all shadow-xl shadow-natural-primary/20"
+                          >
+                            <Download size={20} />
+                            TÉLÉCHARGER
+                          </button>
+                          <button
+                            onClick={() => window.print()}
+                            className="bg-white border-2 border-natural-border text-natural-primary px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-natural-bg transition-all shadow-sm"
+                          >
+                            <ShoppingBag size={20} />
+                            IMPRIMER
+                          </button>
+                          <button
+                            onClick={onTrackOrder}
+                            className="bg-natural-accent text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:opacity-95 transition-all shadow-xl shadow-natural-accent/20"
+                          >
+                            <Truck size={20} />
+                            SUIVRE COLIS
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="text-sm font-bold text-natural-secondary flex flex-col items-center gap-6">
-                    <div className="p-4 bg-white rounded-2xl border border-dashed border-natural-primary/30 max-w-xs text-center">
+                  <div className="space-y-10 flex flex-col items-center">
+                    <div className="p-6 bg-white rounded-3xl border border-dashed border-natural-primary/30 max-w-md text-center shadow-inner">
                       {formData?.shippingMethod === 'pickup' ? (
-                        <>📍 Votre colis vous attend au <span className="text-natural-primary underline decoration-2">Point de Retrait Local</span>.</>
+                        <div className="flex items-center gap-4 text-left">
+                          <Store className="text-natural-primary shrink-0" size={32} />
+                          <p className="text-sm font-bold text-natural-secondary">📍 Votre colis vous attend au <span className="text-natural-primary underline decoration-2">Point de Retrait Local</span>.</p>
+                        </div>
                       ) : (
-                        <>🏠 Livraison prévue à <span className="text-natural-primary underline decoration-2">{formData?.neighborhood || "votre quartier"}</span> {formData?.shippingMethod === 'express' ? 'dans 24h' : 'sous 3 jours'}.</>
+                        <div className="flex items-center gap-4 text-left">
+                          <Truck className="text-natural-primary shrink-0" size={32} />
+                          <p className="text-sm font-bold text-natural-secondary">🏠 Livraison prévue à <span className="text-natural-primary underline decoration-2">{formData?.neighborhood || "votre quartier"}</span> {formData?.shippingMethod === 'express' ? 'dans 24h' : 'sous 3 jours'}.</p>
+                        </div>
                       )}
                     </div>
-                    <button onClick={() => window.location.reload()} className="text-sm font-black uppercase tracking-[0.2em] text-white bg-natural-primary px-8 py-4 rounded-xl shadow-lg hover:bg-natural-primary/90 transition-all mt-4">
+
+                    <button
+                      onClick={() => window.location.href = '/'}
+                      className="bg-natural-primary text-white px-12 py-6 rounded-3xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-natural-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-4"
+                    >
+                      <ArrowRight size={20} className="rotate-180" />
                       RETOUR À L'ACCUEIL
                     </button>
                   </div>

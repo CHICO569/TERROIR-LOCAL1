@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, User, ArrowRight, Loader2, CheckCircle2, ShieldCheck, KeyRound, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
+import emailjs from '@emailjs/browser';
 
 const EMAILJS_CONFIG = {
   serviceId: 'service_z8okin2',
@@ -67,11 +68,30 @@ export function AuthPage() {
   };
 
   const sendEmailOtp = async (targetEmail: string, code: string) => {
-    // Simulation selon la demande "faut pas envoyer demail"
-    console.log("%c--- OTP CODE (Simulation) ---", "background: #222; color: #FFAA00; font-size: 16px; padding: 5px;");
-    console.log(`Email: ${targetEmail}`);
-    console.log(`Code: ${code}`);
-    return true;
+    try {
+      await emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        {
+          subject: 'Votre code de vérification - Terroir Local',
+          to_email: targetEmail,
+          to_name: fullName || targetEmail.split('@')[0],
+          otp_code: code,
+          app_name: 'Terroir Local Sénégal',
+          is_otp: true,
+          is_order: false
+        },
+        EMAILJS_CONFIG.publicKey
+      );
+      return true;
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      // Fallback console log for developer visibility
+      console.log("%c--- OTP CODE (Simulation) ---", "background: #222; color: #FFAA00; font-size: 16px; padding: 5px;");
+      console.log(`Email: ${targetEmail}`);
+      console.log(`Code: ${code}`);
+      return true; // Return true to allow progress even if email fails in dev
+    }
   };
 
   const handleForgotPassword = async () => {
@@ -347,10 +367,6 @@ export function AuthPage() {
         </form>
 
         <div className="mt-10 pt-8 border-t border-natural-border flex flex-col items-center gap-4">
-          <div className="p-4 bg-natural-bg rounded-2xl border border-natural-border w-full text-center">
-            <p className="text-[9px] font-black uppercase tracking-widest text-natural-secondary mb-1">Accès Démonstration</p>
-            <p className="text-[10px] font-bold text-natural-primary">Admin: <span className="text-natural-accent">admin@terroir.sn</span> / <span className="text-natural-accent">admin123</span></p>
-          </div>
           <button
             type="button"
             onClick={() => {
