@@ -117,7 +117,7 @@ export function Layout() {
         <div className="p-8 border-b border-natural-bg">
           <div
             className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => changeTab('home')}
+            onClick={() => changeTab(isAdmin ? 'admin' : 'home')}
           >
             <div className="bg-natural-primary p-2.5 rounded-xl text-white group-hover:rotate-12 transition-transform shadow-lg shadow-natural-primary/20">
               <Leaf size={24} />
@@ -228,7 +228,12 @@ export function Layout() {
               </div>
               <div className="text-[11px] font-bold">
                 <p className="text-natural-text truncate max-w-[100px]">{user.user_metadata?.full_name || user.email?.split('@')[0]}</p>
-                <p className="text-natural-secondary">Membre Fidèle</p>
+                <p className={cn(
+                  "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mt-1 w-fit",
+                  isAdmin ? "bg-natural-accent/10 text-natural-accent border border-natural-accent/20" : "bg-natural-primary/10 text-natural-primary"
+                )}>
+                  {isAdmin ? 'Administrateur' : 'Membre Fidèle'}
+                </p>
               </div>
             </div>
           </div>
