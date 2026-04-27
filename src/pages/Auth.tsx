@@ -27,7 +27,7 @@ export function AuthPage() {
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [canResend, setCanResend] = useState(true);
 
   useEffect(() => {
     let interval: any;
@@ -186,11 +186,7 @@ export function AuthPage() {
           });
 
           if (signUpError) {
-            // Check if it's a network error (Supabase unreachable/misconfigured)
-            if (signUpError.message.toLowerCase().includes("fetch") || signUpError.status === 0) {
-              console.warn("Supabase unreachable. Switching to Demo Mode.");
-              setIsDemoMode(true);
-            } else if (signUpError.message.includes("User already registered")) {
+            if (signUpError.message.includes("User already registered")) {
               setIsSignUp(false);
               throw new Error("Cet e-mail est déjà utilisé. Veuillez vous connecter.");
             } else {
@@ -198,12 +194,7 @@ export function AuthPage() {
             }
           }
         } catch (err: any) {
-          if (err.message.toLowerCase().includes("fetch")) {
-            console.warn("Network error during signup. Using Demo Mode.");
-            setIsDemoMode(true);
-          } else {
-            throw err;
-          }
+          throw err;
         }
 
         // Proceed to OTP flow (either real or demo)
@@ -237,16 +228,6 @@ export function AuthPage() {
           
           if (loginError) {
             console.error("Supabase Login Error:", loginError);
-            if (loginError.message.toLowerCase().includes("fetch") || loginError.status === 0) {
-              console.warn("Supabase unreachable for login. Switching to Demo Mode.");
-              setIsDemoMode(true);
-              // In demo mode, any password works for existing accounts for presentation purposes
-              const code = Math.floor(100000 + Math.random() * 900000).toString();
-              setGeneratedOtp(code);
-              setShowOtpInput(true);
-              setMessage({ type: 'success', text: "Mode Démo activé (Supabase hors-ligne). Code de validation envoyé." });
-              return;
-            }
             if (loginError.message.toLowerCase().includes("email not confirmed")) {
                // Re-trigger OTP flow for unconfirmed users
                console.log("User exists but not confirmed. Sending Gmail OTP...");
@@ -272,15 +253,7 @@ export function AuthPage() {
             setMessage({ type: 'success', text: "Connexion réussie ! Redirection..." });
           }
         } catch (err: any) {
-          if (err.message.toLowerCase().includes("fetch")) {
-            setIsDemoMode(true);
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            setGeneratedOtp(code);
-            setShowOtpInput(true);
-            setMessage({ type: 'success', text: "Mode Démo activé (Connexion simulée)." });
-          } else {
-            throw err;
-          }
+          throw err;
         }
       }
     } catch (error: any) {

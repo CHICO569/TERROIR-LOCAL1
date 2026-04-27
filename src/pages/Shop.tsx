@@ -40,7 +40,7 @@ export function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [isDemoMode, setIsDemoMode] = useState(false);
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -49,17 +49,14 @@ export function Shop() {
         const data = await productService.getAll();
         if (data && data.length > 0) {
           setProducts(data);
-          setIsDemoMode(false);
           console.log('Produits chargés depuis Supabase:', data);
         } else {
-          setProducts(MOCK_PRODUCTS);
-          setIsDemoMode(true);
-          console.warn('Base de données vide ou inaccessible, utilisation des mocks.');
+          setProducts([]);
+          console.warn('Base de données vide.');
         }
       } catch (error) {
         console.error('Failed to fetch from Supabase:', error);
-        setProducts(MOCK_PRODUCTS);
-        setIsDemoMode(true);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -88,11 +85,7 @@ export function Shop() {
         <div className="space-y-2">
           <div className="flex items-center gap-4">
             <h1 className="text-5xl font-black text-natural-primary font-serif">Le Terroir</h1>
-            {isDemoMode && (
-              <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200">
-                Mode Démo
-              </span>
-            )}
+
           </div>
           <p className="text-natural-secondary font-medium tracking-wide">Découvrez les trésors authentiques de nos régions</p>
         </div>

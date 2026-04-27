@@ -177,11 +177,7 @@ export function Admin() {
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <h1 className="text-3xl lg:text-4xl font-black font-serif text-natural-primary">Tableau de Bord</h1>
-                  {products.length > 0 && products[0].id.length < 5 && (
-                    <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest rounded-full border border-amber-200">
-                      Simulation
-                    </span>
-                  )}
+
                 </div>
                 <p className="text-sm text-natural-secondary font-medium mt-1">Surveillez la croissance du terroir</p>
               </div>
