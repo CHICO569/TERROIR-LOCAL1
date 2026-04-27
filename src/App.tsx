@@ -21,16 +21,16 @@ import { Toast } from './components/ui/Toast';
 
 export function Layout() {
   const [activeTab, setActiveTab] = useState<'home' | 'shop' | 'cart' | 'checkout' | 'admin' | 'tracking' | 'profile'>('home');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [tabHistory, setTabHistory] = useState<string[]>([]);
   const { items, toast, hideToast, addToast } = useCart();
   const { user, loading, signOut } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  // Derive admin status directly from the authenticated user — no stale state possible
+  const isAdmin = user?.email === 'admin@terroir.sn';
 
   const changeTab = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
@@ -46,29 +46,17 @@ export function Layout() {
   };
 
   useEffect(() => {
-    if (user?.email === 'admin@terroir.sn') {
-      setIsAdmin(true);
-      setActiveTab('admin'); // Use direct call here to avoid history pollution on mount
+    if (isAdmin) {
+      setActiveTab('admin');
+    } else if (user && !isAdmin) {
+      // Make sure a non-admin user always starts on home, never on admin
+      setActiveTab(prev => prev === 'admin' ? 'home' : prev);
     }
-  }, [user]);
+  }, [isAdmin, user]);
 
   const cartCount = items.reduce((acc, i) => acc + i.quantity, 0);
 
-  const handleAdminLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = adminEmail.trim().toLowerCase();
-    const cleanPassword = adminPassword.trim();
 
-    if (cleanEmail === 'admin@terroir.sn' && cleanPassword === 'admin123') {
-      setIsAdmin(true);
-      setShowAdminLogin(false);
-      setAdminEmail('');
-      setAdminPassword('');
-      addToast("Accès administrateur accordé.");
-    } else {
-      addToast("Identifiants incorrects.");
-    }
-  };
 
   const handleNewsletterSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -402,62 +390,7 @@ export function Layout() {
           onClose={hideToast}
         />
 
-        {/* Admin Login Modal */}
-        <AnimatePresence>
-          {showAdminLogin && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] bg-natural-primary/20 backdrop-blur-sm flex items-center justify-center p-6"
-            >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl border border-natural-border"
-              >
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-black font-serif text-natural-primary">Accès Restreint</h3>
-                  <button onClick={() => setShowAdminLogin(false)} className="p-2 hover:bg-natural-bg rounded-xl transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
-                <p className="text-natural-secondary text-sm font-medium mb-8">Veuillez saisir vos identifiants administrateur pour accéder aux statistiques et à la gestion du catalogue.</p>
 
-                <form onSubmit={handleAdminLogin} className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-natural-secondary px-2">Identifiant Admin</label>
-                    <input
-                      type="email"
-                      autoFocus
-                      placeholder="admin@terroir.sn"
-                      className="w-full bg-natural-bg border-none rounded-2xl px-6 py-4 text-sm font-medium focus:ring-2 focus:ring-natural-primary/20 transition-all outline-none"
-                      value={adminEmail}
-                      onChange={e => setAdminEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-natural-secondary px-2">Mot de passe</label>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      className="w-full bg-natural-bg border-none rounded-2xl px-6 py-4 text-sm font-medium focus:ring-2 focus:ring-natural-primary/20 transition-all outline-none"
-                      value={adminPassword}
-                      onChange={e => setAdminPassword(e.target.value)}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-natural-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-natural-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-                  >
-                    Valider l'accès
-                  </button>
-                </form>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Mobile Menu Overlay */}
