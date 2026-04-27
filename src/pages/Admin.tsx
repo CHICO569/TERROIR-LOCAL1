@@ -114,7 +114,7 @@ export function Admin() {
     fetchData();
   }, []);
 
-  const totalSales = orders.reduce((acc, o) => acc + o.total_amount, 0);
+  const totalSales = (orders || []).reduce((acc, o) => acc + (Number(o?.total_amount) || 0), 0);
 
   if (loading) {
     return (
@@ -217,9 +217,9 @@ export function Admin() {
               {/* Other Stats */}
               <div className="lg:col-span-2 grid grid-cols-2 gap-4 lg:gap-8">
                 {[
-                  { label: 'Commandes', val: orders.length.toString(), icon: <ShoppingBag size={20} />, color: 'bg-natural-accent', textColor: 'text-white' },
-                  { label: 'Ruptures', val: products.filter(p => p.stock < 5).length.toString().padStart(2, '0'), icon: <AlertTriangle size={20} />, color: 'bg-red-500', textColor: 'text-white' },
-                  { label: 'Produits', val: products.length.toString(), icon: <CheckCircle size={20} />, color: 'bg-white', textColor: 'text-natural-primary' },
+                  { label: 'Commandes', val: (orders?.length || 0).toString(), icon: <ShoppingBag size={20} />, color: 'bg-natural-accent', textColor: 'text-white' },
+                  { label: 'Ruptures', val: (products || []).filter(p => p.stock < 5).length.toString().padStart(2, '0'), icon: <AlertTriangle size={20} />, color: 'bg-red-500', textColor: 'text-white' },
+                  { label: 'Produits', val: (products?.length || 0).toString(), icon: <CheckCircle size={20} />, color: 'bg-white', textColor: 'text-natural-primary' },
                   { label: 'Clients', val: "12", icon: <User size={20} />, color: 'bg-white', textColor: 'text-natural-primary' }
                 ].map((s, i) => (
                   <div key={i} className={cn("p-6 lg:p-8 rounded-[32px] border border-natural-border shadow-sm group hover:shadow-xl transition-all", s.color)}>
@@ -313,7 +313,7 @@ export function Admin() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-natural-bg/50">
-                    {orders.slice(0, 5).map((o) => (
+                    {(orders || []).slice(0, 5).map((o) => (
                       <tr key={o.id} className="group hover:bg-natural-bg/30 transition-all">
                         <td className="py-8 font-black text-natural-primary text-sm truncate max-w-[100px]">#{o.id.slice(0, 6)}</td>
                         <td className="py-8">
@@ -386,7 +386,7 @@ export function Admin() {
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-natural-bg/50">
-                       {products.map((p, i) => (
+                       {(products || []).map((p, i) => (
                          <tr key={p.id} className="hover:bg-natural-bg/10 transition-colors">
                             <td className="p-8">
                                <p className="font-bold font-serif text-lg text-natural-primary mb-1">{p.name}</p>
@@ -441,7 +441,7 @@ export function Admin() {
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-natural-bg/50">
-                       {orders.map((o) => (
+                       {(orders || []).map((o) => (
                          <tr key={o.id} className="hover:bg-natural-bg/10 transition-colors">
                             <td className="p-8 font-black text-xs">#{o.id.slice(0, 8)}</td>
                             <td className="p-8 font-bold text-sm">{o.full_name}</td>
