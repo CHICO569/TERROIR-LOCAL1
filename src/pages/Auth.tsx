@@ -27,7 +27,7 @@ export function AuthPage() {
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
-  const [canResend, setCanResend] = useState(true);
+
 
   useEffect(() => {
     let interval: any;
