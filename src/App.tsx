@@ -296,7 +296,7 @@ export function Layout() {
               handleBack();
             }
           }}
-          className="flex-1 overflow-y-auto no-scrollbar bg-natural-bg p-6 md:p-12"
+          className="flex-1 overflow-y-auto no-scrollbar bg-natural-bg p-3 md:p-12"
         >
           <div className="max-w-7xl mx-auto min-h-full">
             <AnimatePresence mode="wait">
@@ -335,20 +335,20 @@ export function Layout() {
                     <div className="absolute top-[-50px] right-[-50px] w-96 h-96 bg-natural-bg rounded-full -z-0 opacity-50 blur-3xl"></div>
                     <Leaf size={400} className="absolute bottom-[-100px] right-[-100px] text-natural-primary/5 -rotate-12 hidden lg:block" />
                   </div>
-
-                  <div className="grid md:grid-cols-3 gap-8">
-                    {[
-                      { title: "Direct Producteur", desc: "Pas d'intermédiaires, 100% de la valeur redistribuée.", icon: <Leaf className="text-natural-primary" /> },
-                      { title: "Livraison 24h", desc: "Commandez aujourd'hui, cuisinez demain. C'est ça la fraîcheur.", icon: <Truck size={24} className="text-natural-accent" /> },
-                      { title: "Qualité Certifiée", desc: "Des produits sélectionnés un par un pour votre santé.", icon: <CheckCircle2 size={24} className="text-blue-500/70" /> }
-                    ].map((f, i) => (
-                      <div key={i} className="bg-white p-12 rounded-[32px] border border-natural-border hover:shadow-lg transition-all group">
-                        <div className="bg-natural-bg w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border border-natural-border transition-transform group-hover:scale-110">{f.icon}</div>
-                        <h4 className="text-xl font-black mb-4 text-natural-primary">{f.title}</h4>
-                        <p className="text-natural-secondary leading-relaxed font-medium text-sm">{f.desc}</p>
-                      </div>
-                    ))}
-                  </div>
+ 
+                   <div className="grid md:grid-cols-3 gap-8">
+                     {[
+                       { title: "Direct Producteur", desc: "Pas d'intermédiaires, 100% de la valeur redistribuée.", icon: <Leaf className="text-natural-primary" /> },
+                       { title: "Livraison 24h", desc: "Commandez aujourd'hui, cuisinez demain. C'est ça la fraîcheur.", icon: <Truck size={24} className="text-natural-accent" /> },
+                       { title: "Qualité Certifiée", desc: "Des produits sélectionnés un par un pour votre santé.", icon: <CheckCircle2 size={24} className="text-blue-500/70" /> }
+                     ].map((f, i) => (
+                       <div key={i} className="bg-white p-12 rounded-[32px] border border-natural-border hover:shadow-lg transition-all group">
+                         <div className="bg-natural-bg w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border border-natural-border transition-transform group-hover:scale-110">{f.icon}</div>
+                         <h4 className="text-xl font-black mb-4 text-natural-primary">{f.title}</h4>
+                         <p className="text-natural-secondary leading-relaxed font-medium text-sm">{f.desc}</p>
+                       </div>
+                     ))}
+                   </div>
 
                   {/* Newsletter */}
                   <div className="bg-natural-accent rounded-[48px] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-natural-accent/20">
